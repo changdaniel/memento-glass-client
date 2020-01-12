@@ -1,15 +1,23 @@
 package com.openquartz.glasspreview;
 
 import android.content.Context;
+import android.gesture.Gesture;
 import android.hardware.Camera;
+import android.util.Log;
+import android.view.GestureDetector;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import java.io.IOException;
 
+import static android.content.ContentValues.TAG;
+
 public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Callback {
 
     private Camera camera;
+    private GestureDetector mGestureDetector = null;
+
+    private static final int TAKE_PICTURE_REQUEST = 1;
 
     public CameraSurfaceView(Context context) {
         super(context);
@@ -29,6 +37,9 @@ public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Call
         } catch (IOException e) {
             releaseCamera();
         }
+
+//        //START OF MY CODE
+//        mGestureDetector = createGestureDetector(this);
     }
 
     @Override
@@ -54,4 +65,5 @@ public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Call
             camera = null;
         }
     }
+
 }

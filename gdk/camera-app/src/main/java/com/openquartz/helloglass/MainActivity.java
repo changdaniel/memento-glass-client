@@ -3,17 +3,32 @@ package com.openquartz.helloglass;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.hardware.Camera;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.FileObserver;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+
+
+import android.widget.ImageView;
 
 import com.google.android.glass.content.Intents;
 import com.google.android.glass.touchpad.Gesture;
 import com.google.android.glass.touchpad.GestureDetector;
 
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 import java.io.File;
+
+import static android.content.ContentValues.TAG;
+
 
 public class MainActivity extends Activity {
     private static final int TAKE_PICTURE_REQUEST = 1;
@@ -33,6 +48,8 @@ public class MainActivity extends Activity {
 
         // Set the view
         setContentView(cameraView);
+
+
     }
 
     @Override
@@ -55,6 +72,7 @@ public class MainActivity extends Activity {
         // Do not hold the camera during onPause
         if (cameraView != null) {
             cameraView.releaseCamera();
+
         }
     }
 
@@ -72,17 +90,29 @@ public class MainActivity extends Activity {
                 if (cameraView != null) {
                     // Tap with a single finger for photo
                     if (gesture == Gesture.TAP) {
-                        startActivityForResult(new Intent(MediaStore.ACTION_IMAGE_CAPTURE),
-                            TAKE_PICTURE_REQUEST);
 
-                        return true;
-                    } else if (gesture == Gesture.TWO_TAP) {
-                        // Tap with 2 fingers for video
-                        startActivityForResult(new Intent(MediaStore.ACTION_VIDEO_CAPTURE),
-                            TAKE_VIDEO_REQUEST);
+//                        for (int i = 0; i < 5; i ++)
+//                        {
+//                            try
+//                            {
+//                                Thread.sleep(5000);
+                                //cameraView.takePicture();
+//                            }
+//                            catch(Exception e)
+//                            {
+//                                Log.v(TAG, e.getMessage());
+//                            }
+//                        }
 
                         return true;
                     }
+//                    } else if (gesture == Gesture.TWO_TAP) {
+//                        // Tap with 2 fingers for video
+//                        startActivityForResult(new Intent(MediaStore.ACTION_VIDEO_CAPTURE),
+//                            TAKE_VIDEO_REQUEST);
+//
+//                        return true;
+//                    }
                 }
 
                 return false;
@@ -101,15 +131,16 @@ public class MainActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Handle photos
-        if (requestCode == TAKE_PICTURE_REQUEST && resultCode == RESULT_OK) {
-            String picturePath = data.getStringExtra(Intents.EXTRA_PICTURE_FILE_PATH);
-            processPictureWhenReady(picturePath);
+        if (requestCode == TAKE_PICTURE_REQUEST && resultCode == RESULT_OK)
+        {
+            Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+            //System.out.println(bitmap);
+//            String picturePath = data.getStringExtra(Intents.EXTRA_PICTURE_FILE_PATH);
+//            processPictureWhenReady(picturePath);
         }
-
-        // Handle videos
-        if (requestCode == TAKE_VIDEO_REQUEST && resultCode == RESULT_OK) {
-            String picturePath = data.getStringExtra(Intents.EXTRA_VIDEO_FILE_PATH);
-            processPictureWhenReady(picturePath);
+        else if (resultCode != RESULT_OK)
+        {
+            //System.out.println("Picture not confirmed");
         }
 
         super.onActivityResult(requestCode, resultCode, data);
@@ -123,6 +154,8 @@ public class MainActivity extends Activity {
 
         if (pictureFile.exists()) {
             // The picture is ready; process it.
+
+            ;
         } else {
             // The file does not exist yet. Before starting the file observer, you
             // can update your UI to let the user know that the application is
@@ -162,11 +195,4 @@ public class MainActivity extends Activity {
         }
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        // Stop the preview and release the camera.
-        // Execute your logic as quickly as possible
-        // so the capture happens quickly.
-        return keyCode != KeyEvent.KEYCODE_CAMERA && super.onKeyDown(keyCode, event);
-    }
 }

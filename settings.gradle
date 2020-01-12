@@ -6,3 +6,4 @@ include ":gdk:hello-glass"
 include ":gdk:location"
 include ":gdk:voice-example"
 include ":sdk:camera-preview"
+include ':cuXtomCamLibrary'
