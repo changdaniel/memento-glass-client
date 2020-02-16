@@ -99,7 +99,6 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
     public void takePicture()
     {
 
-
         Camera.PictureCallback previewPicture = new Camera.PictureCallback()
         {
             @Override
@@ -138,7 +137,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
                     }
                     camera.startPreview();
                 } catch (NullPointerException e) {
-                    Log.v(TAG, e.getMessage());
+                        Log.v(TAG, e.getMessage());
                 }
             }
         };

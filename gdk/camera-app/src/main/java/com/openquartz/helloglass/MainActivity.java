@@ -21,9 +21,15 @@ import com.google.android.glass.touchpad.Gesture;
 import com.google.android.glass.touchpad.GestureDetector;
 
 
+import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 import java.io.File;
 
@@ -31,6 +37,12 @@ import static android.content.ContentValues.TAG;
 
 
 public class MainActivity extends Activity {
+
+    private Socket socket = new Socket();
+    private static final int SERVERPORT = 8088;
+    private static final String SERVER_IP = "3.134.84.232"; //EC2 Public
+
+
     private static final int TAKE_PICTURE_REQUEST = 1;
     private static final int TAKE_VIDEO_REQUEST = 2;
     private GestureDetector mGestureDetector = null;
@@ -50,6 +62,7 @@ public class MainActivity extends Activity {
         setContentView(cameraView);
 
 
+        new Thread(new ClientThread()).start();
     }
 
     @Override
@@ -91,12 +104,31 @@ public class MainActivity extends Activity {
                     // Tap with a single finger for photo
                     if (gesture == Gesture.TAP) {
 
+                        final String str = "test";
+                        final PrintWriter out = new PrintWriter(new BufferedWriter(
+                            new OutputStreamWriter(socket.getOutputStream())),
+                            true);
+                        System.out.println(str);
+
+                        new Thread(new Runnable() {
+                            public void run() {
+                                try {
+                                    out.write(str);
+
+                                    out.flush();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    Log.i(TAG, "SendDataToNetwork: Message send failed. Caught an exception");
+                                }
+                            }
+                        }).start();
+
 //                        for (int i = 0; i < 5; i ++)
 //                        {
 //                            try
 //                            {
 //                                Thread.sleep(5000);
-                                //cameraView.takePicture();
+//                                cameraView.takePicture();
 //                            }
 //                            catch(Exception e)
 //                            {
@@ -193,6 +225,26 @@ public class MainActivity extends Activity {
             };
             observer.startWatching();
         }
+    }
+
+    class ClientThread implements Runnable {
+
+        @Override
+        public void run() {
+
+            try {
+                InetAddress serverAddr = InetAddress.getByName(SERVER_IP);
+
+                socket = new Socket(serverAddr, SERVERPORT);
+
+            } catch (UnknownHostException e1) {
+                e1.printStackTrace();
+            } catch (IOException     e1) {
+                e1.printStackTrace();
+            }
+
+        }
+
     }
 
 }
