@@ -104,24 +104,36 @@ public class MainActivity extends Activity {
                     // Tap with a single finger for photo
                     if (gesture == Gesture.TAP) {
 
-                        final String str = "test";
-                        final PrintWriter out = new PrintWriter(new BufferedWriter(
-                            new OutputStreamWriter(socket.getOutputStream())),
-                            true);
-                        System.out.println(str);
+                        try{
 
-                        new Thread(new Runnable() {
-                            public void run() {
-                                try {
-                                    out.write(str);
 
-                                    out.flush();
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                    Log.i(TAG, "SendDataToNetwork: Message send failed. Caught an exception");
+
+                            final String str = "test";
+                            final PrintWriter out = new PrintWriter(new BufferedWriter(
+                                new OutputStreamWriter(socket.getOutputStream())),
+                                true);
+                            System.out.println(str);
+
+                            new Thread(new Runnable() {
+                                public void run() {
+                                    try {
+                                        out.write(str);
+
+                                        out.flush();
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                        Log.i(TAG, "SendDataToNetwork: Message send failed. Caught an exception");
+                                    }
                                 }
-                            }
-                        }).start();
+                            }).start();
+
+                    } catch (UnknownHostException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
 
 //                        for (int i = 0; i < 5; i ++)
 //                        {
