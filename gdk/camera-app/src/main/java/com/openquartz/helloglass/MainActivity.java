@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.FileObserver;
 import android.provider.MediaStore;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -21,10 +22,12 @@ import com.google.android.glass.touchpad.Gesture;
 import com.google.android.glass.touchpad.GestureDetector;
 
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetAddress;
@@ -39,8 +42,9 @@ import static android.content.ContentValues.TAG;
 public class MainActivity extends Activity {
 
     private Socket socket = new Socket();
-    private static final int SERVERPORT = 8088;
-    private static final String SERVER_IP = "3.134.84.232"; //EC2 Public
+    private static final int SERVERPORT = 8089;
+    private static final String SERVER_IP = "52.14.55.180"; //EC2 Public
+    private TextToSpeech tts;
 
 
     private static final int TAKE_PICTURE_REQUEST = 1;
@@ -113,6 +117,41 @@ public class MainActivity extends Activity {
                                 new OutputStreamWriter(socket.getOutputStream())),
                                 true);
                             System.out.println(str);
+
+
+                            final BufferedReader inp = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+
+
+                            String response = "";
+                            try {
+                                Thread.sleep(10000);
+                                System.out.println("waited");
+                            }
+
+                            catch (Exception e) {
+                                e.printStackTrace();
+                                Log.i(TAG, "WaitForResponse: Caught an exception");
+
+                            }
+
+
+                            System.out.println("got");
+                            System.out.println(response);
+                            System.out.println("here");
+
+                            try {
+                                while ((response = inp.readLine()) != null) {
+                                    System.out.println(response);
+                                    tts.stop();
+                                    tts.speak(response, TextToSpeech.QUEUE_FLUSH, null);
+                                }
+                                System.out.println("past it");
+                            } catch (Exception e) {
+                                System.out.println(response);
+                                e.printStackTrace();
+                                Log.i(TAG, "ReceiveDataFromNetwork: Input reception failed. Caught an exception");
+                            }
 
                             new Thread(new Runnable() {
                                 public void run() {
