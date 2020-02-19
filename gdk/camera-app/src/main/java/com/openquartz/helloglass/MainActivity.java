@@ -42,8 +42,8 @@ import static android.content.ContentValues.TAG;
 public class MainActivity extends Activity {
 
     private Socket socket = new Socket();
-    private static final int SERVERPORT = 8089;
-    private static final String SERVER_IP = "3.20.234.93"; //EC2 Public
+    private static final int SERVERPORT = 8088;
+    private static final String SERVER_IP = "3.19.208.169"; //EC2 Public
     private TextToSpeech tts;
 
 
@@ -57,41 +57,41 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         // Initiate CameraView
-        cameraView = new CameraView(this);
+//        cameraView = new CameraView(this);
 
         // Turn on Gestures
         mGestureDetector = createGestureDetector(this);
 
         // Set the view
-        setContentView(cameraView);
+//        setContentView(cameraView);
 
 
         new Thread(new ClientThread()).start();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        // Do not hold the camera during onResume
-        if (cameraView != null) {
-            cameraView.releaseCamera();
-        }
-
-        // Set the view
-        setContentView(cameraView);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        // Do not hold the camera during onPause
-        if (cameraView != null) {
-            cameraView.releaseCamera();
-
-        }
-    }
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//
+//        // Do not hold the camera during onResume
+//        if (cameraView != null) {
+//            cameraView.releaseCamera();
+//        }
+//
+//        // Set the view
+//        setContentView(cameraView);
+//    }
+//
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//
+//        // Do not hold the camera during onPause
+//        if (cameraView != null) {
+//            cameraView.releaseCamera();
+//
+//        }
+//    }
 
     /**
      * Gesture detection for fingers on the Glass
@@ -104,7 +104,7 @@ public class MainActivity extends Activity {
             @Override
             public boolean onGesture(Gesture gesture) {
                 // Make sure view is initiated
-                if (cameraView != null) {
+                if (true) {
                     // Tap with a single finger for photo
                     if (gesture == Gesture.TAP) {
 
@@ -121,38 +121,6 @@ public class MainActivity extends Activity {
 
                             final BufferedReader inp = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-
-
-                            String response = "";
-                            try {
-                                Thread.sleep(10000);
-                                System.out.println("waited");
-                            }
-
-                            catch (Exception e) {
-                                e.printStackTrace();
-                                Log.i(TAG, "WaitForResponse: Caught an exception");
-
-                            }
-
-
-                            System.out.println("got");
-                            System.out.println(response);
-                            System.out.println("here");
-
-                            try {
-                                while ((response = inp.readLine()) != null) {
-                                    System.out.println(response);
-                                    tts.stop();
-                                    tts.speak(response, TextToSpeech.QUEUE_FLUSH, null);
-                                }
-                                System.out.println("past it");
-                            } catch (Exception e) {
-                                System.out.println(response);
-                                e.printStackTrace();
-                                Log.i(TAG, "ReceiveDataFromNetwork: Input reception failed. Caught an exception");
-                            }
-
                             new Thread(new Runnable() {
                                 public void run() {
                                     try {
@@ -163,8 +131,31 @@ public class MainActivity extends Activity {
                                         e.printStackTrace();
                                         Log.i(TAG, "SendDataToNetwork: Message send failed. Caught an exception");
                                     }
+
+
+                                    String response = "";
+
+
+                                    System.out.println("got here");
+
+                                    try {
+                                        while ((response = inp.readLine()) != null) {
+                                            System.out.println(response);
+                                            tts.stop();
+                                            tts.speak(response, TextToSpeech.QUEUE_FLUSH, null);
+                                        }
+                                        System.out.println("past it");
+                                    } catch (Exception e) {
+                                        System.out.println(response);
+                                        e.printStackTrace();
+                                        Log.i(TAG, "ReceiveDataFromNetwork: Input reception failed. Caught an exception");
+                                    }
                                 }
                             }).start();
+
+
+
+
 
                     } catch (UnknownHostException e) {
                         e.printStackTrace();
