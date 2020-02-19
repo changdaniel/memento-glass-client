@@ -43,7 +43,7 @@ public class MainActivity extends Activity {
 
     private Socket socket = new Socket();
     private static final int SERVERPORT = 8089;
-    private static final String SERVER_IP = "52.14.55.180"; //EC2 Public
+    private static final String SERVER_IP = "3.20.234.93"; //EC2 Public
     private TextToSpeech tts;
 
 
