@@ -44,14 +44,14 @@ public class MainActivity extends Activity {
 
     private Socket socket = new Socket();
     private static final int SERVERPORT = 8088;
-    private static final String SERVER_IP = "3.19.208.169"; //EC2 Public
+    private static final String SERVER_IP = "18.191.9.55 "; //EC2 Public
     private TextToSpeech tts;
 
 
     private static final int TAKE_PICTURE_REQUEST = 1;
     private static final int TAKE_VIDEO_REQUEST = 2;
     private GestureDetector mGestureDetector = null;
-    private CameraView cameraView = null;
+//    private CameraView cameraView = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -69,7 +69,7 @@ public class MainActivity extends Activity {
 
         new Thread(new ClientThread()).start();
     }
-
+//
 //    @Override
 //    protected void onResume() {
 //        super.onResume();
@@ -137,13 +137,13 @@ public class MainActivity extends Activity {
                                     char[] response = new char[1024];
 
 
-                                    try {
-                                        Thread.sleep(1000);
-                                    }
-
-                                    catch (Exception e) {
-
-                                    }
+//                                    try {
+//                                        Thread.sleep(1000);
+//                                    }
+//
+//                                    catch (Exception e) {
+//
+//                                    }
 
                                     try {
 
@@ -159,7 +159,7 @@ public class MainActivity extends Activity {
 
                                         String resp = new String(Arrays.copyOfRange(response, 0 , firstnull));
                                         System.out.println(resp);
-                                        tts.speak(resp,0, null);
+                                        //tts.speak(resp,0, null);
 
                                     } catch (Exception e) {
                                         e.printStackTrace();

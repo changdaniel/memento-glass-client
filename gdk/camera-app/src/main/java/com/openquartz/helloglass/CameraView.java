@@ -23,9 +23,8 @@ import static android.content.ContentValues.TAG;
 
 public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
     private Camera camera = null;
-    private ClientSocket socket = null;
+//    private ClientSocket socket = null;
     //private TextToSpeech textToSpeech = null;
-    ExecutorService executor = Executors.newFixedThreadPool(10);
 
     public CameraView(Context context) {
         super(context);
@@ -34,7 +33,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
         surfaceHolder.addCallback(this);
         surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
-        socket = new ClientSocket();
+//        socket = new ClientSocket();
     }
 
     @Override
@@ -96,93 +95,93 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
      * TODO: Adding picture taking options to CameraView
      */
 
-    public void takePicture()
-    {
-
-        Camera.PictureCallback previewPicture = new Camera.PictureCallback()
-        {
-            @Override
-            public void onPictureTaken(byte[] bytes, Camera camera) {
-                System.out.println("postview");
-                try {
-//                    System.out.println(bytes);
-                    System.out.println(bytes.length);
-                    socket.sendBytes(bytes);
-                    camera.startPreview();
-                } catch (NullPointerException e) {
-                    //Log.v(TAG, e.getMessage());
-                } catch (Exception e){
-
-                }
-            }
-        };
-        Camera.PictureCallback rawPicture = new Camera.PictureCallback()
-        {
-            @Override
-            public void onPictureTaken(byte[] bytes, Camera camera) {
-                System.out.println("raw");
-                try {
-                    if(bytes != null)
-                    {
-                        try
-                        {
-
-                            System.out.println(bytes);
-                            System.out.println(bytes.length);
-                            socket.sendBytes(bytes);
-                        }
-                        catch (Exception e){
-
-                        }
-                    }
-                    camera.startPreview();
-                } catch (NullPointerException e) {
-                        Log.v(TAG, e.getMessage());
-                }
-            }
-        };
-        Camera.PictureCallback picture = new Camera.PictureCallback()
-        {
-            @Override
-            public void onPictureTaken(byte[] bytes, Camera camera) {
-                System.out.println("jpeg");
-//                Log.v(TAG, "Getting output media file");
-//                File pictureFile = getOutputMediaFile();
-//                if (pictureFile == null) {
-//                    Log.v(TAG, "Error creating output file");
-//                    return;
+//    public void takePicture()
+//    {
+//
+//        Camera.PictureCallback previewPicture = new Camera.PictureCallback()
+//        {
+//            @Override
+//            public void onPictureTaken(byte[] bytes, Camera camera) {
+//                System.out.println("postview");
+//                try {
+////                    System.out.println(bytes);
+//                    System.out.println(bytes.length);
+//                    socket.sendBytes(bytes);
+//                    camera.startPreview();
+//                } catch (NullPointerException e) {
+//                    //Log.v(TAG, e.getMessage());
+//                } catch (Exception e){
+//
 //                }
-                try {
-//                    FileOutputStream fos = new FileOutputStream(pictureFile);
-//                    fos.write(bytes);
-//                    System.out.println(pictureFile);
-                    System.out.println(bytes);
-                    System.out.println(bytes.length);
-
-                    socket.sendBytes(bytes);
-
-//                    fos.close();
-                    camera.startPreview();
-//                } catch (FileNotFoundException e) {
+//            }
+//        };
+//        Camera.PictureCallback rawPicture = new Camera.PictureCallback()
+//        {
+//            @Override
+//            public void onPictureTaken(byte[] bytes, Camera camera) {
+//                System.out.println("raw");
+//                try {
+//                    if(bytes != null)
+//                    {
+//                        try
+//                        {
+//
+//                            System.out.println(bytes);
+//                            System.out.println(bytes.length);
+//                            socket.sendBytes(bytes);
+//                        }
+//                        catch (Exception e){
+//
+//                        }
+//                    }
+//                    camera.startPreview();
+//                } catch (NullPointerException e) {
+//                        Log.v(TAG, e.getMessage());
+//                }
+//            }
+//        };
+//        Camera.PictureCallback picture = new Camera.PictureCallback()
+//        {
+//            @Override
+//            public void onPictureTaken(byte[] bytes, Camera camera) {
+//                System.out.println("jpeg");
+////                Log.v(TAG, "Getting output media file");
+////                File pictureFile = getOutputMediaFile();
+////                if (pictureFile == null) {
+////                    Log.v(TAG, "Error creating output file");
+////                    return;
+////                }
+//                try {
+////                    FileOutputStream fos = new FileOutputStream(pictureFile);
+////                    fos.write(bytes);
+////                    System.out.println(pictureFile);
+//                    System.out.println(bytes);
+//                    System.out.println(bytes.length);
+//
+//                    socket.sendBytes(bytes);
+//
+////                    fos.close();
+//                    camera.startPreview();
+////                } catch (FileNotFoundException e) {
+////                    Log.v(TAG, e.getMessage());
+//                } catch (IOException e) {
 //                    Log.v(TAG, e.getMessage());
-                } catch (IOException e) {
-                    Log.v(TAG, e.getMessage());
-                } catch(NullPointerException e){
-                    Log.v(TAG, e.getMessage());
-                }
-            }
-        };
-        try {
-            camera.startPreview();
-            camera.takePicture(null, null, previewPicture, null);
-
-
-
-        } catch (Exception e) {
-            Log.v(TAG, e.getMessage());
-        }
-
-    }
+//                } catch(NullPointerException e){
+//                    Log.v(TAG, e.getMessage());
+//                }
+//            }
+//        };
+//        try {
+//            camera.startPreview();
+//            camera.takePicture(null, null, previewPicture, null);
+//
+//
+//
+//        } catch (Exception e) {
+//            Log.v(TAG, e.getMessage());
+//        }
+//
+//    }
 
     private static File getOutputMediaFile() {
 //        String state = Environment.getExternalStorageState();
