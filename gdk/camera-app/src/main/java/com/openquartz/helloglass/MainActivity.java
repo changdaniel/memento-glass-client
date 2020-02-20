@@ -33,6 +33,7 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.io.File;
 
@@ -133,20 +134,34 @@ public class MainActivity extends Activity {
                                     }
 
 
-                                    String response = "";
+                                    char[] response = new char[1024];
 
-
-                                    System.out.println("got here");
 
                                     try {
-                                        while ((response = inp.readLine()) != null) {
-                                            System.out.println(response);
-                                            tts.stop();
-                                            tts.speak(response, TextToSpeech.QUEUE_FLUSH, null);
+                                        Thread.sleep(1000);
+                                    }
+
+                                    catch (Exception e) {
+
+                                    }
+
+                                    try {
+
+                                        int numchars = inp.read(response);
+                                        int firstnull = 0;
+                                        for (char c: response) {
+                                            if (c =='\0') {
+                                                break;
+                                            }
+                                            firstnull++;
                                         }
-                                        System.out.println("past it");
+
+
+                                        String resp = new String(Arrays.copyOfRange(response, 0 , firstnull));
+                                        System.out.println(resp);
+                                        tts.speak(resp,0, null);
+
                                     } catch (Exception e) {
-                                        System.out.println(response);
                                         e.printStackTrace();
                                         Log.i(TAG, "ReceiveDataFromNetwork: Input reception failed. Caught an exception");
                                     }
