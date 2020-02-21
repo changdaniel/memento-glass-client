@@ -11,6 +11,7 @@ import android.view.SurfaceView;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -34,7 +35,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
     private Camera camera = null;
     private Socket socket = new Socket();
     private static final int SERVERPORT = 8088;
-    private static final String SERVER_IP = "18.191.9.55 "; //EC2 Public
+    private static final String SERVER_IP = "3.19.14.13"; //EC2 Public
 
     //private TextToSpeech textToSpeech = null;
 
@@ -110,7 +111,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
     public void takePicture()
     {
 
-        Camera.PictureCallback previewPicture = new Camera.PictureCallback()
+        Camera.PictureCallback picture = new Camera.PictureCallback()
         {
             @Override
             public void onPictureTaken(byte[] bytes, Camera camera) {
@@ -118,21 +119,27 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
                 try {
 
 
-                        final String str = new String(bytes);
-                        final PrintWriter out = new PrintWriter(new BufferedWriter(
-                            new OutputStreamWriter(socket.getOutputStream())),
-                            true);
-                        System.out.println(str);
+//                        final String str = new String(bytes);
+                        final int len = bytes.length;
+                        final byte[] final_bytes = bytes;
+//                        final PrintWriter out = new PrintWriter(new BufferedWriter(
+//                            new OutputStreamWriter(socket.getOutputStream())),
+//                            true);
+//                        System.out.println(str);
 
+
+                        String headerString = "SIZE " + String.valueOf(len);
+                        final DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+                        final byte[] headerBytes =headerString.getBytes("UTF-8");
 
                         final BufferedReader inp = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
                         new Thread(new Runnable() {
                             public void run() {
                                 try {
-                                    out.write(str);
-
-                                    out.flush();
+                                    dos.write(headerBytes,0,headerBytes.length);
+                                    dos.flush();
+                                    dos.write(final_bytes, 0, len);
+                                    dos.flush();
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                     Log.i(TAG, "SendDataToNetwork: Message send failed. Caught an exception");
@@ -172,6 +179,52 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
                                 }
                             }
                         }).start();
+
+//                        new Thread(new Runnable() {
+//                            public void run() {
+//                                try {
+//                                    out.write(str);
+//
+//                                    out.flush();
+//                                } catch (Exception e) {
+//                                    e.printStackTrace();
+//                                    Log.i(TAG, "SendDataToNetwork: Message send failed. Caught an exception");
+//                                }
+//
+//
+//                                char[] response = new char[1024];
+//
+//
+////                                    try {
+////                                        Thread.sleep(1000);
+////                                    }
+////
+////                                    catch (Exception e) {
+////
+////                                    }
+//
+//                                try {
+//
+//                                    int numchars = inp.read(response);
+//                                    int firstnull = 0;
+//                                    for (char c: response) {
+//                                        if (c =='\0') {
+//                                            break;
+//                                        }
+//                                        firstnull++;
+//                                    }
+//
+//
+//                                    String resp = new String(Arrays.copyOfRange(response, 0 , firstnull));
+//                                    System.out.println(resp);
+//                                    //tts.speak(resp,0, null);
+//
+//                                } catch (Exception e) {
+//                                    e.printStackTrace();
+//                                    Log.i(TAG, "ReceiveDataFromNetwork: Input reception failed. Caught an exception");
+//                                }
+//                            }
+//                        }).start();
 
 
 
@@ -243,7 +296,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 //        };
         try {
             camera.startPreview();
-            camera.takePicture(null, null, previewPicture, null);
+            camera.takePicture(null, null, null, picture);
 
 
 
