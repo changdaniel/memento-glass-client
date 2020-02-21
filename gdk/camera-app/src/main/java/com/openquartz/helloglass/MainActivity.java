@@ -42,57 +42,57 @@ import static android.content.ContentValues.TAG;
 
 public class MainActivity extends Activity {
 
-    private Socket socket = new Socket();
+//    private Socket socket = new Socket();
     private static final int SERVERPORT = 8088;
     private static final String SERVER_IP = "18.191.9.55 "; //EC2 Public
-    private TextToSpeech tts;
+//    private TextToSpeech tts;
 
 
     private static final int TAKE_PICTURE_REQUEST = 1;
     private static final int TAKE_VIDEO_REQUEST = 2;
     private GestureDetector mGestureDetector = null;
-//    private CameraView cameraView = null;
+    private CameraView cameraView = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // Initiate CameraView
-//        cameraView = new CameraView(this);
+        cameraView = new CameraView(this);
 
         // Turn on Gestures
         mGestureDetector = createGestureDetector(this);
 
         // Set the view
-//        setContentView(cameraView);
+        setContentView(cameraView);
 
 
-        new Thread(new ClientThread()).start();
+//        new Thread(new ClientThread()).start();
     }
-//
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//
-//        // Do not hold the camera during onResume
-//        if (cameraView != null) {
-//            cameraView.releaseCamera();
-//        }
-//
-//        // Set the view
-//        setContentView(cameraView);
-//    }
-//
-//    @Override
-//    protected void onPause() {
-//        super.onPause();
-//
-//        // Do not hold the camera during onPause
-//        if (cameraView != null) {
-//            cameraView.releaseCamera();
-//
-//        }
-//    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Do not hold the camera during onResume
+        if (cameraView != null) {
+            cameraView.releaseCamera();
+        }
+
+        // Set the view
+        setContentView(cameraView);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        // Do not hold the camera during onPause
+        if (cameraView != null) {
+            cameraView.releaseCamera();
+
+        }
+    }
 
     /**
      * Gesture detection for fingers on the Glass
@@ -109,83 +109,13 @@ public class MainActivity extends Activity {
                     // Tap with a single finger for photo
                     if (gesture == Gesture.TAP) {
 
-                        try{
-
-
-
-                            final String str = "test";
-                            final PrintWriter out = new PrintWriter(new BufferedWriter(
-                                new OutputStreamWriter(socket.getOutputStream())),
-                                true);
-                            System.out.println(str);
-
-
-                            final BufferedReader inp = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-                            new Thread(new Runnable() {
-                                public void run() {
-                                    try {
-                                        out.write(str);
-
-                                        out.flush();
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                        Log.i(TAG, "SendDataToNetwork: Message send failed. Caught an exception");
-                                    }
-
-
-                                    char[] response = new char[1024];
-
-
-//                                    try {
-//                                        Thread.sleep(1000);
-//                                    }
-//
-//                                    catch (Exception e) {
-//
-//                                    }
-
-                                    try {
-
-                                        int numchars = inp.read(response);
-                                        int firstnull = 0;
-                                        for (char c: response) {
-                                            if (c =='\0') {
-                                                break;
-                                            }
-                                            firstnull++;
-                                        }
-
-
-                                        String resp = new String(Arrays.copyOfRange(response, 0 , firstnull));
-                                        System.out.println(resp);
-                                        //tts.speak(resp,0, null);
-
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                        Log.i(TAG, "ReceiveDataFromNetwork: Input reception failed. Caught an exception");
-                                    }
-                                }
-                            }).start();
-
-
-
-
-
-                    } catch (UnknownHostException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
 
 //                        for (int i = 0; i < 5; i ++)
 //                        {
 //                            try
 //                            {
 //                                Thread.sleep(5000);
-//                                cameraView.takePicture();
+                        cameraView.takePicture();
 //                            }
 //                            catch(Exception e)
 //                            {
@@ -284,24 +214,24 @@ public class MainActivity extends Activity {
         }
     }
 
-    class ClientThread implements Runnable {
-
-        @Override
-        public void run() {
-
-            try {
-                InetAddress serverAddr = InetAddress.getByName(SERVER_IP);
-
-                socket = new Socket(serverAddr, SERVERPORT);
-
-            } catch (UnknownHostException e1) {
-                e1.printStackTrace();
-            } catch (IOException     e1) {
-                e1.printStackTrace();
-            }
-
-        }
-
-    }
+//    class ClientThread implements Runnable {
+//
+//        @Override
+//        public void run() {
+//
+//            try {
+//                InetAddress serverAddr = InetAddress.getByName(SERVER_IP);
+//
+//                socket = new Socket(serverAddr, SERVERPORT);
+//
+//            } catch (UnknownHostException e1) {
+//                e1.printStackTrace();
+//            } catch (IOException     e1) {
+//                e1.printStackTrace();
+//            }
+//
+//        }
+//
+//    }
 
 }

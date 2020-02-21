@@ -9,10 +9,19 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -23,22 +32,25 @@ import static android.content.ContentValues.TAG;
 
 public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
     private Camera camera = null;
-//    private ClientSocket socket = null;
+    private Socket socket = new Socket();
+    private static final int SERVERPORT = 8088;
+    private static final String SERVER_IP = "18.191.9.55 "; //EC2 Public
+
     //private TextToSpeech textToSpeech = null;
 
     public CameraView(Context context) {
         super(context);
-
+        new Thread(new ClientThread()).start();
         final SurfaceHolder surfaceHolder = getHolder();
         surfaceHolder.addCallback(this);
         surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
-//        socket = new ClientSocket();
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         camera = Camera.open();
+        new Thread(new ClientThread()).start();
 //        textToSpeech = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
 //            @Override
 //            public void onInit(int status) {
@@ -95,31 +107,89 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
      * TODO: Adding picture taking options to CameraView
      */
 
-//    public void takePicture()
-//    {
+    public void takePicture()
+    {
+
+        Camera.PictureCallback previewPicture = new Camera.PictureCallback()
+        {
+            @Override
+            public void onPictureTaken(byte[] bytes, Camera camera) {
+                System.out.println("postview");
+                try {
+
+
+                        final String str = new String(bytes);
+                        final PrintWriter out = new PrintWriter(new BufferedWriter(
+                            new OutputStreamWriter(socket.getOutputStream())),
+                            true);
+                        System.out.println(str);
+
+
+                        final BufferedReader inp = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+                        new Thread(new Runnable() {
+                            public void run() {
+                                try {
+                                    out.write(str);
+
+                                    out.flush();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    Log.i(TAG, "SendDataToNetwork: Message send failed. Caught an exception");
+                                }
+
+
+                                char[] response = new char[1024];
+
+
+//                                    try {
+//                                        Thread.sleep(1000);
+//                                    }
 //
-//        Camera.PictureCallback previewPicture = new Camera.PictureCallback()
-//        {
-//            @Override
-//            public void onPictureTaken(byte[] bytes, Camera camera) {
-//                System.out.println("postview");
-//                try {
-////                    System.out.println(bytes);
-//                    System.out.println(bytes.length);
-//                    socket.sendBytes(bytes);
-//                    camera.startPreview();
-//                } catch (NullPointerException e) {
-//                    //Log.v(TAG, e.getMessage());
-//                } catch (Exception e){
+//                                    catch (Exception e) {
 //
-//                }
-//            }
-//        };
-//        Camera.PictureCallback rawPicture = new Camera.PictureCallback()
-//        {
-//            @Override
-//            public void onPictureTaken(byte[] bytes, Camera camera) {
-//                System.out.println("raw");
+//                                    }
+
+                                try {
+
+                                    int numchars = inp.read(response);
+                                    int firstnull = 0;
+                                    for (char c: response) {
+                                        if (c =='\0') {
+                                            break;
+                                        }
+                                        firstnull++;
+                                    }
+
+
+                                    String resp = new String(Arrays.copyOfRange(response, 0 , firstnull));
+                                    System.out.println(resp);
+                                    //tts.speak(resp,0, null);
+
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    Log.i(TAG, "ReceiveDataFromNetwork: Input reception failed. Caught an exception");
+                                }
+                            }
+                        }).start();
+
+
+
+
+
+                    camera.startPreview();
+                } catch (NullPointerException e) {
+                    Log.v(TAG, e.getMessage());
+                } catch (Exception e){
+
+                }
+            }
+        };
+        Camera.PictureCallback rawPicture = new Camera.PictureCallback()
+        {
+            @Override
+            public void onPictureTaken(byte[] bytes, Camera camera) {
+                System.out.println("raw");
 //                try {
 //                    if(bytes != null)
 //                    {
@@ -138,8 +208,8 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 //                } catch (NullPointerException e) {
 //                        Log.v(TAG, e.getMessage());
 //                }
-//            }
-//        };
+            }
+        };
 //        Camera.PictureCallback picture = new Camera.PictureCallback()
 //        {
 //            @Override
@@ -171,17 +241,17 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 //                }
 //            }
 //        };
-//        try {
-//            camera.startPreview();
-//            camera.takePicture(null, null, previewPicture, null);
-//
-//
-//
-//        } catch (Exception e) {
-//            Log.v(TAG, e.getMessage());
-//        }
-//
-//    }
+        try {
+            camera.startPreview();
+            camera.takePicture(null, null, previewPicture, null);
+
+
+
+        } catch (Exception e) {
+            Log.v(TAG, e.getMessage());
+        }
+
+    }
 
     private static File getOutputMediaFile() {
 //        String state = Environment.getExternalStorageState();
@@ -235,6 +305,26 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
             camera.release();
             camera = null;
         }
+    }
+
+    class ClientThread implements Runnable {
+
+        @Override
+        public void run() {
+
+            try {
+                InetAddress serverAddr = InetAddress.getByName(SERVER_IP);
+
+                socket = new Socket(serverAddr, SERVERPORT);
+
+            } catch (UnknownHostException e1) {
+                e1.printStackTrace();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+
+        }
+
     }
 
 }
